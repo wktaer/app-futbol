@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Partido</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #4caf50;
+        }
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .match-header {
+            background: linear-gradient(rgba(26,35,126,0.9), rgba(26,35,126,0.7));
+            color: white;
+            padding: 2rem 0;
+        }
+        .team-logo-lg {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            padding: 0 2rem;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+        }
+        .progress {
+            height: 10px;
+        }
+        .stream-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .stream-card:hover {
+            transform: translateY(-5px);
+        }
+        .channel-logo {
+            width: 60px;
+            height: 30px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">⚽ FútbolHub</a>
+        </div>
+    </nav>
+
+    <div class="match-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-4 text-center">
+                    <img id="home-team-logo" class="team-logo-lg mb-2" src="" alt="">
+                    <h3 id="home-team-name" class="mb-0"></h3>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="score-display">
+                        <span id="home-score">0</span>
+                        <span>-</span>
+                        <span id="away-score">0</span>
+                    </div>
+                    <div id="match-time" class="mt-2"></div>
+                </div>
+                <div class="col-4 text-center">
+                    <img id="away-team-logo" class="team-logo-lg mb-2" src="" alt="">
+                    <h3 id="away-team-name" class="mb-0"></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="stats-card">
+                    <h4 class="mb-4">Estadísticas del Partido</h4>
+                    <div id="match-stats"></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h4 class="mb-3">Dónde Ver el Partido</h4>
+                <div id="streaming-options"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_KEY = '108c13664bmsh03c31116948478fp13d756jsncda39ff8316d';
+        const API_HOST = 'api-football-v1.p.rapidapi.com';
+
+        // Obtener el ID del partido de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const fixtureId = urlParams.get('id');
+
+        async function loadMatchDetails() {
+            try {
+                const response = await fetch(`https://${API_HOST}/v3/fixtures?id=${fixtureId}`, {
+                    headers: {
+                        'x-rapidapi-host': API_HOST,
+                        'x-rapidapi-key': API_KEY
+                    }
+                });
+                const data = await response.json();
+                const match = data.response[0];
+                displayMatchDetails(match);
+                loadMatchStatistics();
+            } catch (error) {
+                console.error('Error:', error);
+                displayDemoMatch();
+            }
+        }
+
+        async function loadMatchStatistics() {
+            try {
+                const response = await fetch(`https://${API_HOST}/v3/fixtures/statistics?fixture=${fixtureId}`, {
+                    headers: {
+                        'x-rapidapi-host': API_HOST,
+                        'x-rapidapi-key': API_KEY
+                    }
+                });
+                const data = await response.json();
+                displayStatistics(data.response);
+            } catch (error) {
+                console.error('Error:', error);
+                displayDemoStatistics();
+            }
+        }
+
+        function displayMatchDetails(match) {
+            // Actualizar logos y nombres de equipos
+            document.getElementById('home-team-logo').src = match.teams.home.logo;
+            document.getElementById('home-team-logo').alt = match.teams.home.name;
+            document.getElementById('home-team-name').textContent = match.teams.home.name;
+            
+            document.getElementById('away-team-logo').src = match.teams.away.logo;
+            document.getElementById('away-team-logo').alt = match.teams.away.name;
+            document.getElementById('away-team-name').textContent = match.teams.away.name;
+
+            // Actualizar marcador
+            document.getElementById('home-score').textContent = match.goals.home ?? 0;
+            document.getElementById('away-score').textContent = match.goals.away ?? 0;
+
+            // Actualizar tiempo de juego
+            document.getElementById('match-time').textContent = `${match.fixture.status.elapsed}'`;
+
+            // Mostrar opciones de streaming
+            displayStreamingOptions(match);
+        }
+
+        function displayStatistics(stats) {
+            if (!stats || stats.length === 0) {
+                displayDemoStatistics();
+                return;
+            }
+
+            const homeStats = stats[0].statistics;
+            const awayStats = stats[1].statistics;
+            
+            const statsHTML = homeStats.map((stat, index) => {
+                const homeStat = stat.value ?? 0;
+                const awayStat = awayStats[index].value ?? 0;
+                const total = homeStat + awayStat;
+                const homePercentage = total > 0 ? (homeStat / total) * 100 : 50;
+                
+                return `
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${homeStat}</span>
+                            <span class="text-muted">${stat.type}</span>
+                            <span>${awayStat}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: ${homePercentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('match-stats').innerHTML = statsHTML;
+        }
+
+        function displayStreamingOptions(match) {
+            const streams = [
+                {
+                    name: 'ESPN',
+                    logo: 'https://a.espncdn.com/redesign/assets/img/logos/espn-404@2x.png',
+                    link: 'https://www.espn.com/watch/',
+                    type: 'TV/Streaming'
+                },
+                {
+                    name: 'FOX Sports',
+                    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/FOX_Sports_logo.svg/1200px-FOX_Sports_logo.svg.png',
+                    link: 'https://www.foxsports.com/live',
+                    type: 'TV/Streaming'
+                },
+                {
+                    name: 'DAZN',
+                    logo: 'https://assets.stickpng.com/images/5e98c5c518d1ab0004a9a7d5.png',
+                    link: 'https://www.dazn.com',
+                    type: 'Streaming'
+                }
+            ];
+
+            const streamingHTML = streams.map(stream => `
+                <div class="stream-card p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="${stream.logo}" alt="${stream.name}" class="channel-logo me-3">
+                            <div>
+                                <h5 class="mb-1">${stream.name}</h5>
+                                <small class="text-muted">${stream.type}</small>
+                            </div>
+                        </div>
+                        <a href="${stream.link}" target="_blank" class="btn btn-primary btn-sm">Ver</a>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('streaming-options').innerHTML = streamingHTML;
+        }
+
+        function displayDemoStatistics() {
+            const demoStats = [
+                { type: 'Posesión', home: 55, away: 45 },
+                { type: 'Tiros', home: 12, away: 8 },
+                { type: 'Tiros al Arco', home: 5, away: 3 },
+                { type: 'Corners', home: 6, away: 4 },
+                { type: 'Faltas', home: 10, away: 12 }
+            ];
+
+            const statsHTML = demoStats.map(stat => {
+                const total = stat.home + stat.away;
+                const homePercentage = (stat.home / total) * 100;
+                
+                return `
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${stat.home}</span>
+                            <span class="text-muted">${stat.type}</span>
+                            <span>${stat.away}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: ${homePercentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('match-stats').innerHTML = statsHTML;
+        }
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMatchDetails();
+            // Actualizar datos cada 60 segundos
+            setInterval(loadMatchDetails, 60000);
+        });
+    </script>
+</body>
+</html>

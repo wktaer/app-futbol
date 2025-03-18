@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canal en Vivo - Fútbol Chileno</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --gradient-start: #d32f2f;
+            --gradient-end: #ff6659;
+        }
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(rgba(211, 47, 47, 0.9), rgba(211, 47, 47, 0.85)), 
+                       url('https://www.eldinamo.cl/wp-content/uploads/2023/03/Estadio-Monumental-Copa-Libertadores-2023-1024x576.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .player-container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            margin: 2rem auto;
+        }
+        .embed-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            background: #000;
+            margin-bottom: 2rem;
+        }
+        .embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .channel-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            color: #fff;
+        }
+        .channel-logo {
+            width: 120px;
+            height: 60px;
+            object-fit: contain;
+            margin-right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 10px;
+        }
+        .stream-quality {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .text-warning {
+            color: #ffc107 !important;
+        }
+        .text-muted {
+            color: #aaa !important;
+        }
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="home-futbol.html">
+                <i class="fas fa-futbol me-2"></i>
+                Fútbol Chileno
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="home-futbol.html">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">
+                            <i class="fas fa-tv me-1"></i> En Vivo
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="player-container">
+            <h2 class="mb-4">
+                <i class="fas fa-broadcast-tower me-2"></i>
+                Canal en Vivo
+            </h2>
+            
+            <div class="embed-container" id="player-embed">
+                <!-- El iframe se insertará aquí mediante JavaScript -->
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <img src="" alt="Logo del canal" class="channel-logo" id="channel-logo">
+                        <div>
+                            <h4 class="mb-1" id="channel-name">Cargando...</h4>
+                            <div class="stream-quality">
+                                <i class="fas fa-signal"></i>
+                                HD
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <select class="source-selector" id="source-selector">
+                        <option value="">Seleccionar Fuente</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="channel-info mt-4">
+                <h5>
+                    <i class="fas fa-info-circle me-2"></i>
+                    Información del Partido
+                </h5>
+                <p class="mb-2" id="match-info">Cargando información del partido...</p>
+                <p class="mb-0 text-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Los enlaces se actualizan constantemente para garantizar la mejor calidad.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="mb-0"> JavierB 2025 - Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para obtener parámetros de la URL
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                channelId: params.get('channel'),
+                matchId: params.get('match')
+            };
+        }
+
+        // Función para cargar la información del canal
+        function loadChannelInfo() {
+            const { channelId, matchId } = getUrlParams();
+            const channels = {
+                'tnt': {
+                    name: 'TNT Sports',
+                    logo: 'https://upload.wikimedia.org/wikipedia/commons/4/46/TNT_Sports_Logo_2021.svg',
+                    sources: [
+                        { name: 'Servidor Principal', url: 'https://example.com/embed1' },
+                        { name: 'Servidor Alternativo 1', url: 'https://example.com/embed2' },
+                        { name: 'Servidor Alternativo 2', url: 'https://example.com/embed3' }
+                    ]
+                },
+                'espn': {
+                    name: 'ESPN Chile',
+                    logo: 'https://a.espncdn.com/redesign/assets/img/logos/espn-404@2x.png',
+                    sources: [
+                        { name: 'Servidor Principal', url: 'https://example.com/embed4' },
+                        { name: 'Servidor Alternativo 1', url: 'https://example.com/embed5' }
+                    ]
+                }
+            };
+
+            const channel = channels[channelId] || channels['tnt'];
+            
+            // Actualizar información del canal
+            document.getElementById('channel-logo').src = channel.logo;
+            document.getElementById('channel-name').textContent = channel.name;
+            
+            // Poblar selector de fuentes
+            const selector = document.getElementById('source-selector');
+            selector.innerHTML = '<option value="">Seleccionar Fuente</option>';
+            channel.sources.forEach((source, index) => {
+                selector.innerHTML += `<option value="${index}">${source.name}</option>`;
+            });
+
+            // Evento para cambiar la fuente
+            selector.addEventListener('change', function() {
+                const sourceIndex = this.value;
+                if (sourceIndex !== '') {
+                    const embedUrl = channel.sources[sourceIndex].url;
+                    document.getElementById('player-embed').innerHTML = `
+                        <iframe src="${embedUrl}" allowfullscreen></iframe>
+                    `;
+                }
+            });
+
+            // Mostrar información del partido
+            document.getElementById('match-info').textContent = 
+                matchId ? 'Colo-Colo vs Universidad de Chile - Primera División' : 
+                         'Transmisión en vivo - Primera División';
+        }
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', loadChannelInfo);
+    </script>
+</body>
+</html>
