@@ -224,7 +224,7 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .section-title {
-            color: var(--primary-color);
+            color: #ffffff;
             font-weight: 800;
             margin-bottom: 2rem;
             position: relative;
@@ -519,7 +519,7 @@
             ];
 
             const channelsHTML = channels.map(channel => `
-                <div class="match-card animate__animated animate__fadeInRight" onclick="window.location.href='go:canal'">
+                <div class="match-card animate__animated animate__fadeInRight" onclick="window.location.href='channel-player.html?channel=${channel.id}'">
                     <div class="match-content">
                         <div class="d-flex align-items-center">
                             <img src="${channel.logo}" alt="${channel.name}" style="width: 80px; height: 40px; object-fit: contain;" class="me-3">
