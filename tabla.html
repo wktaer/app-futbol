@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Posiciones - Chilean App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Inherit main styles */
+        :root {
+            --primary-color: #d32f2f;
+            --gradient-start: #d32f2f;
+            --gradient-end: #ff6659;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(rgba(211, 47, 47, 0.9), rgba(211, 47, 47, 0.85)), 
+                       url('https://www.eldinamo.cl/wp-content/uploads/2023/03/Estadio-Monumental-Copa-Libertadores-2023-1024x576.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .standings-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .standings-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            padding: 1rem;
+        }
+
+        .standings-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .team-row {
+            transition: all 0.3s ease;
+        }
+
+        .team-row:hover {
+            background: rgba(211, 47, 47, 0.1);
+            transform: translateX(5px);
+        }
+
+        .team-logo-small {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
+
+        .position {
+            font-weight: 800;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--gradient-start);
+            color: white;
+            margin-right: 10px;
+        }
+
+        .qualification-zone {
+            border-left: 4px solid #4caf50;
+        }
+
+        .relegation-zone {
+            border-left: 4px solid #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .standings-table {
+                font-size: 0.9rem;
+            }
+
+            .team-name {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Inherit Navbar from home-futbol.html -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <!-- ... navbar content ... -->
+    </nav>
+
+    <!-- Add after the container opening -->
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title text-white">Tabla de Posiciones</h2>
+            <a href="home-futbol.html" class="btn btn-light btn-lg rounded-pill shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>Volver
+            </a>
+        </div>
+        <div class="standings-table animate__animated animate__fadeIn">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Pos</th>
+                        <th>Equipo</th>
+                        <th>PJ</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>P</th>
+                        <th>GF</th>
+                        <th>GC</th>
+                        <th>DG</th>
+                        <th>Pts</th>
+                    </tr>
+                </thead>
+                <tbody id="standings-body">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Función para cargar la tabla de posiciones
+        async function loadStandings() {
+            try {
+                // Aquí iría la llamada a la API real
+                displayDemoStandings();
+            } catch (error) {
+                console.error('Error:', error);
+                displayDemoStandings();
+            }
+        }
+
+        function displayDemoStandings() {
+            const teams = [
+                { pos: 1, name: 'Cobresal', logo: 'path_to_logo', played: 25, won: 15, drawn: 6, lost: 4, gf: 45, ga: 25, points: 51 },
+                { pos: 2, name: 'Huachipato', logo: 'path_to_logo', played: 25, won: 14, drawn: 7, lost: 4, gf: 40, ga: 23, points: 49 },
+                // Add more teams...
+            ];
+
+            const standingsHTML = teams.map(team => `
+                <tr class="team-row ${team.pos <= 3 ? 'qualification-zone' : team.pos >= 16 ? 'relegation-zone' : ''}">
+                    <td><span class="position">${team.pos}</span></td>
+                    <td>
+                        <img src="${team.logo}" alt="${team.name}" class="team-logo-small">
+                        <span class="team-name">${team.name}</span>
+                    </td>
+                    <td>${team.played}</td>
+                    <td>${team.won}</td>
+                    <td>${team.drawn}</td>
+                    <td>${team.lost}</td>
+                    <td>${team.gf}</td>
+                    <td>${team.ga}</td>
+                    <td>${team.gf - team.ga}</td>
+                    <td><strong>${team.points}</strong></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('standings-body').innerHTML = standingsHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStandings);
+    </script>
+</body>
+</html>

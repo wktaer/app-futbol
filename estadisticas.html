@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - Chilean App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Inherit main styles */
+        :root {
+            --primary-color: #d32f2f;
+            --gradient-start: #d32f2f;
+            --gradient-end: #ff6659;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(rgba(211, 47, 47, 0.9), rgba(211, 47, 47, 0.85)), 
+                       url('https://www.eldinamo.cl/wp-content/uploads/2023/03/Estadio-Monumental-Copa-Libertadores-2023-1024x576.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-header {
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .player-stats {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .player-stats:hover {
+            background: rgba(211, 47, 47, 0.1);
+            transform: translateX(5px);
+        }
+
+        .player-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .stats-card {
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Inherit Navbar from home-futbol.html -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <!-- ... navbar content ... -->
+    </nav>
+
+    <!-- Add after the container opening -->
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="stats-header">
+                <h2 class="section-title">Estadísticas del Torneo</h2>
+            </div>
+            <a href="home-futbol.html" class="btn btn-light btn-lg rounded-pill shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>Volver
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h4>Goleadores</h4>
+                    <div id="top-scorers">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h4>Asistencias</h4>
+                    <div id="top-assists">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="stats-card">
+                    <h4>Rendimiento por Equipo</h4>
+                    <canvas id="teamPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Add to existing styles */
+        .btn-light {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-light:hover {
+            background: white;
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+    </style>
+
+    <script>
+        function displayStats() {
+            // Demo data for top scorers
+            const topScorers = [
+                { name: 'Damián Pizarro', team: 'Colo-Colo', goals: 12, photo: 'path_to_photo' },
+                { name: 'Leandro Benegas', team: 'U. de Chile', goals: 10, photo: 'path_to_photo' },
+                // Add more players...
+            ];
+
+            const scorersHTML = topScorers.map(player => `
+                <div class="player-stats">
+                    <img src="${player.photo}" alt="${player.name}" class="player-photo">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">${player.name}</h6>
+                        <small class="text-muted">${player.team}</small>
+                    </div>
+                    <div class="stat-number">${player.goals}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('top-scorers').innerHTML = scorersHTML;
+
+            // Create performance chart
+            const ctx = document.getElementById('teamPerformanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Cobresal', 'Huachipato', 'Colo-Colo', 'U. de Chile'],
+                    datasets: [{
+                        label: 'Goles a Favor',
+                        data: [45, 40, 38, 35],
+                        backgroundColor: 'rgba(211, 47, 47, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', displayStats);
+    </script>
+</body>
+</html>
